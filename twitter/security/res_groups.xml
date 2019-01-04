@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2019 Antonio Espinosa <antespi@gmail.com> -->
+<odoo>
+    <record id="group_twitter" model="res.groups">
+        <field name="name">Twitter</field>
+        <field name="category_id" ref="base.module_category_hidden"/>
+    </record>
+</odoo>

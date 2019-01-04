@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2019 Antonio Espinosa <antespi@gmail.com> -->
+<odoo>
+
+    <record id="twitter_user_view_form" model="ir.ui.view">
+        <field name="name">Twitter user form</field>
+        <field name="model">twitter.user</field>
+        <field name="arch" type="xml">
+            <form string="Twitter user">
+                <header>
+                    <field name="need_followers_discover" invisible="1"/>
+                    <field name="need_friends_discover" invisible="1"/>
+                    <button name="twitter_error_reset"
+                        string="Error Reset"
+                        type="object" attrs="{'invisible': [('twitter_error', '=', False)]}"/>
+                    <button name="sync_reset"
+                        string="Sync Reset"
+                        type="object"/>
+                    <button name="sync_profile"
+                        string="Sync Profile"
+                        type="object"/>
+                    <button name="discover_followers"
+                        string="Discover Followers"
+                        type="object" attrs="{'invisible': [('need_followers_discover', '=', False)]}"/>
+                    <button name="discover_friends"
+                        string="Discover Friends"
+                        type="object" attrs="{'invisible': [('need_friends_discover', '=', False)]}"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <!--button name="action_view_followers" type="object" class="oe_stat_button" icon="fa-users">
+                            <field string="Followers" name="follow_ids_label" widget="statinfo"/>
+                        </button-->
+                        <!--button name="action_view_friends" type="object" class="oe_stat_button" icon="fa-users">
+                            <field string="Friends" name="friend_ids_label" widget="statinfo"/>
+                        </button-->
+                        <button name="action_view_friendships" type="object" class="oe_stat_button" icon="fa-users">
+                            <field string="Friendships" name="friendship_ids_label" widget="statinfo"/>
+                        </button>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="screen_name"/>
+                            <field name="followers_category"/>
+                            <field name="lang"/>
+                            <field name="location"/>
+                            <field name="discovered_by"/>
+                            <field name="created_at"/>
+                            <field name="last_update"/>
+                        </group>
+                        <group>
+                            <field name="twitter_id"/>
+                            <field name="twitter_url" widget="url"/>
+                            <field name="statuses_count"/>
+                            <field name="friends_count"/>
+                            <field name="followers_count"/>
+                            <field name="favourites_count"/>
+                            <field name="listed_count"/>
+                            <field name="followers_ratio"/>
+                        </group>
+                    </group>
+                    <group attrs="{'invisible': [('twitter_error', '=', False)]}">
+                        <field name="twitter_error"/>
+                    </group>
+                    <group>
+                        <field name="description"/>
+                    </group>
+                    <notebook>
+                        <page string="Sync">
+                            <group>
+                                <group>
+                                    <field name="last_followers_date"/>
+                                    <field name="last_followers_count"/>
+                                </group>
+                                <group>
+                                    <field name="last_friends_date"/>
+                                    <field name="last_friends_count"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="twitter_user_view_tree" model="ir.ui.view">
+        <field name="name">Twitter user tree</field>
+        <field name="model">twitter.user</field>
+        <field name="arch" type="xml">
+            <tree string="Twitter users">
+                <field name="display_name"/>
+                <field name="followers_category"/>
+                <field name="followers_ratio"/>
+                <field name="friends_count"/>
+                <field name="followers_count"/>
+                <field name="statuses_count"/>
+                <field name="favourites_count"/>
+                <field name="listed_count"/>
+                <field name="location"/>
+                <field name="lang"/>
+                <field name="friendship_ids_total" string="FT"/>
+                <field name="friendship_ids_fo" string="FO"/>
+                <field name="friendship_ids_fb" string="FB"/>
+                <!--
+                <field name="follow_ids_count" string="FOc"/>
+                <field name="follow_ids_total" string="FOt"/>
+                <field name="friend_ids_count" string="FRc"/>
+                <field name="friend_ids_total" string="FRt"/>
+                -->
+                <field name="created_at"/>
+                <field name="last_update"/>
+                <field name="discovered_by"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="twitter_user_view_filter" model="ir.ui.view">
+        <field name="name">Twitter user filter</field>
+        <field name="model">twitter.user</field>
+        <field name="arch" type="xml">
+            <search string="Twitter users">
+                <field name="name"
+                    filter_domain="['|', ('display_name', 'ilike', self), ('description', 'ilike', self)]"/>
+                <field name="location"/>
+                <field name="lang"/>
+                <filter name="fake" string="Fake users" domain="[('screen_name', '=', False)]"/>
+                <filter name="pending" string="Pending users"
+                        domain="[('screen_name', '!=', False), ('last_update', '=', False)]"/>
+                <filter name="updated" string="Updated users"
+                        domain="[('screen_name', '!=', False), ('last_update', '!=', False)]"/>
+                <filter name="with_error" string="With error" domain="[('twitter_error', '!=', False)]"/>
+                <separator/>
+                <filter name="fs_none" string="No friendships" domain="[('friendship_ids_total', '=', 0)]"/>
+                <filter name="fs_any" string="With friendships" domain="[('friendship_ids_total', '>', 0)]"/>
+                <separator/>
+                <filter name="fs_following" string="Following" domain="[('friendship_ids_fo', '>', 0)]"/>
+                <filter name="fs_no_following" string="No following" domain="[('friendship_ids_fo', '=', 0)]"/>
+                <separator/>
+                <filter name="fs_followed_back" string="Followed back" domain="[('friendship_ids_fb', '>', 0)]"/>
+                <filter name="fs_no_followed_back" string="No followed back" domain="[('friendship_ids_fb', '=', 0)]"/>
+                <!--
+                <separator/>
+                <filter name="follow_no_tracking" string="Follow no tracking" domain="[('follow_ids_total', '=', 0)]"/>
+                <filter name="follow_tracking" string="Follow tracking" domain="[('follow_ids_total', '>', 0)]"/>
+                <filter name="follow_converted" string="Follow converted" domain="[('follow_ids_count', '>', 0)]"/>
+                <separator/>
+                <filter name="friend_no_tracking" string="Friend no tracking" domain="[('friend_ids_total', '=', 0)]"/>
+                <filter name="friend_tracking" string="Friend tracking" domain="[('friend_ids_total', '>', 0)]"/>
+                <filter name="friend_converted" string="Friend converted" domain="[('friend_ids_count', '>', 0)]"/>
+                -->
+                <group expand="0" name="group_by" string="Group By">
+                    <filter name="group_followers_category" string="Followers category" domain="[]"
+                            context="{'group_by' : 'followers_category'}" />
+                    <filter name="group_location" string="Location" domain="[]" context="{'group_by' : 'location'}" />
+                    <filter name="group_lang" string="Language" context="{'group_by': 'lang'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="twitter_user_action" model="ir.actions.act_window">
+        <field name="name">Twitter users</field>
+        <field name="res_model">twitter.user</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="twitter.twitter_user_view_filter"/>
+    </record>
+
+    <menuitem id="twitter_users_list_menu" name="Users" parent="twitter_users_menu"
+              action="twitter.twitter_user_action" sequence="10"/>
+</odoo>

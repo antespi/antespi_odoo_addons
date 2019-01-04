@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2019 Antonio Espinosa <antespi@gmail.com> -->
+<odoo>
+
+    <record id="twitter_follow_view_form" model="ir.ui.view">
+        <field name="name">Twitter follow form</field>
+        <field name="model">twitter.follow</field>
+        <field name="arch" type="xml">
+            <form string="Twitter follow">
+                <header>
+                    <button name="sync_follow"
+                        string="Sync Follow"
+                        type="object"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="follower_id"/>
+                            <field name="follower_twitter_id"/>
+                        </group>
+                        <group>
+                            <field name="friend_id"/>
+                            <field name="friend_twitter_id"/>
+                            <field name="last_update"/>
+                        </group>
+                    </group>
+                    <group attrs="{'invisible': [('target_screen_name', '=', False)]}">
+                        <field name="target_description"/>
+                    </group>
+                    <group attrs="{'invisible': [('target_screen_name', '=', False)]}">
+                        <group>
+                            <field name="target_name"/>
+                            <field name="target_screen_name"/>
+                            <field name="target_followers_category"/>
+                            <field name="target_lang"/>
+                            <field name="target_location"/>
+                        </group>
+                        <group>
+                            <field name="target_url" widget="url"/>
+                            <field name="target_statuses_count"/>
+                            <field name="target_friends_count"/>
+                            <field name="target_followers_count"/>
+                            <field name="target_followers_ratio"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="following"/>
+                            <field name="can_dm"/>
+                            <field name="live_following"/>
+                            <field name="marked_spam"/>
+                            <field name="muting"/>
+                            <field name="notifications_enabled"/>
+                            <field name="want_retweets"/>
+                        </group>
+                        <group>
+                            <field name="followed_by"/>
+                            <field name="block_unfollow"/>
+                            <field name="block_follow"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="twitter_follow_view_tree" model="ir.ui.view">
+        <field name="name">Twitter follow tree</field>
+        <field name="model">twitter.follow</field>
+        <field name="arch" type="xml">
+            <tree string="Twitter follows">
+                <field name="follower_id"/>
+                <field name="friend_id"/>
+                <field name="following"/>
+                <field name="followed_by"/>
+                <field name="target_followers_category"/>
+                <field name="target_followers_ratio"/>
+                <field name="target_friends_count"/>
+                <field name="target_followers_count"/>
+                <field name="target_location"/>
+                <field name="target_lang"/>
+                <field name="last_update"/>
+                <field name="block_unfollow"/>
+                <field name="block_follow"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="twitter_follow_view_filter" model="ir.ui.view">
+        <field name="name">Twitter follow filter</field>
+        <field name="model">twitter.follow</field>
+        <field name="arch" type="xml">
+            <search string="Twitter follows">
+                <field name="display_name" string="Follow name"
+                       filter_domain="[('display_name', 'ilike', self)]"/>
+                <field name="target_name" string="Target name"
+                       filter_domain="['|', '|',
+                            ('target_name', 'ilike', self),
+                            ('target_screen_name', 'ilike', self),
+                            ('target_description', 'ilike', self)]"/>
+                <field name="follower_id" filter_domain="[('follower_id.screen_name', 'ilike', self)]"/>
+                <field name="friend_id" filter_domain="[('friend_id.screen_name', 'ilike', self)]"/>
+                <field name="target_location" string="Target location"/>
+                <field name="target_lang" string="Target language"/>
+                <filter name="fake_follow" string="Fake follows"
+                        domain="['|',
+                            ('follower_id.screen_name', '=', False),
+                            ('friend_id.screen_name', '=', False)]"/>
+                <filter name="pending_follow" string="Pending follows"
+                        domain="[
+                            ('follower_id.screen_name', '!=', False),
+                            ('friend_id.screen_name', '!=', False),
+                            ('last_update', '=', False)]"/>
+                <filter name="updated_follow" string="Updated follows"
+                        domain="['|',
+                            ('follower_id.screen_name', '!=', False),
+                            ('friend_id.screen_name', '!=', False),
+                            ('last_update', '!=', False)]"/>
+                <separator/>
+                <filter name="following" string="Following"
+                        domain="[('following', '=', True)]"/>
+                <filter name="not_following" string="Not following"
+                        domain="[('following', '=', False)]"/>
+                <separator/>
+                <filter name="followed_by" string="Followed back"
+                        domain="[('followed_by', '=', True)]"/>
+                <filter name="not_followed_by" string="Not followed back"
+                        domain="[('followed_by', '=', False)]"/>
+                <group expand="0" name="group_by" string="Group By">
+                    <filter name="group_follower" string="Follower" domain="[]"
+                            context="{'group_by' : 'follower_id'}" />
+                    <filter name="group_friend" string="Friend" domain="[]"
+                            context="{'group_by': 'friend_id'}"/>
+                    <filter name="group_target_followers_category" string="Target Followers category" domain="[]"
+                            context="{'group_by' : 'target_followers_category'}" />
+                    <filter name="group_target_location" string="Target location" domain="[]"
+                            context="{'group_by' : 'target_location'}" />
+                    <filter name="group_target_lang" string="Target language"
+                            context="{'group_by': 'target_lang'}"/>
+                    <filter name="group_following" string="Following" domain="[]"
+                            context="{'group_by' : 'following'}" />
+                    <filter name="group_followed_by" string="Followed back" domain="[]"
+                            context="{'group_by' : 'followed_by'}" />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="twitter_follow_action" model="ir.actions.act_window">
+        <field name="name">Twitter follows</field>
+        <field name="res_model">twitter.follow</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="twitter.twitter_follow_view_filter"/>
+        <field name="view_id" ref="twitter.twitter_follow_view_tree"/>
+    </record>
+
+    <menuitem id="twitter_follows_menu" name="Follow" parent="twitter_users_menu"
+              action="twitter.twitter_follow_action" sequence="20"/>
+
+    <record id="twitter_followers_view_tree" model="ir.ui.view">
+        <field name="name">Twitter followers</field>
+        <field name="model">twitter.follow</field>
+        <field name="arch" type="xml">
+            <tree string="Twitter followers">
+                <field name="follower_id"/>
+                <field name="followed_by"/>
+                <field name="target_followers_category"/>
+                <field name="target_followers_ratio"/>
+                <field name="target_friends_count"/>
+                <field name="target_followers_count"/>
+                <field name="target_location"/>
+                <field name="target_lang"/>
+                <field name="last_update"/>
+                <field name="block_follow"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="twitter_friends_view_tree" model="ir.ui.view">
+        <field name="name">Twitter friends</field>
+        <field name="model">twitter.follow</field>
+        <field name="arch" type="xml">
+            <tree string="Twitter friends">
+                <field name="friend_id"/>
+                <field name="followed_by"/>
+                <field name="target_followers_category"/>
+                <field name="target_followers_ratio"/>
+                <field name="target_friends_count"/>
+                <field name="target_followers_count"/>
+                <field name="target_location"/>
+                <field name="target_lang"/>
+                <field name="last_update"/>
+                <field name="block_unfollow"/>
+            </tree>
+        </field>
+    </record>
+
+</odoo>

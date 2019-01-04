@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record model="twitter.limit" id="limit_friendships_show">
+        <field name="name">friendships_show</field>
+        <field name="resource">friendships</field>
+        <field name="endpoint">/friendships/show</field>
+        <field name="manual" eval="False"/>
+        <field name="limit">180</field>
+        <field name="minutes">15</field>
+    </record>
+    <record model="twitter.limit" id="limit_followers_ids_">
+        <field name="name">followers_ids</field>
+        <field name="resource">followers</field>
+        <field name="endpoint">/followers/ids</field>
+        <field name="manual" eval="False"/>
+        <field name="limit">15</field>
+        <field name="minutes">15</field>
+    </record>
+    <record model="twitter.limit" id="limit_friends_ids">
+        <field name="name">friends_ids</field>
+        <field name="resource">friends</field>
+        <field name="endpoint">/friends/ids</field>
+        <field name="manual" eval="False"/>
+        <field name="limit">15</field>
+        <field name="minutes">15</field>
+    </record>
+    <record model="twitter.limit" id="limit_users_show">
+        <field name="name">users_show</field>
+        <field name="resource">users</field>
+        <field name="endpoint">/users/show/:id</field>
+        <field name="manual" eval="False"/>
+        <field name="limit">900</field>
+        <field name="minutes">15</field>
+    </record>
+    <record model="twitter.limit" id="limit_friendships_create">
+        <field name="name">friendships_create</field>
+        <field name="resource">friendships</field>
+        <field name="endpoint">/friendships/create</field>
+        <field name="manual" eval="True"/>
+        <field name="limit">10</field>
+        <field name="minutes">15</field>
+    </record>
+    <record model="twitter.limit" id="limit_friendships_destroy">
+        <field name="name">friendships_destroy</field>
+        <field name="resource">friendships</field>
+        <field name="endpoint">/friendships/destroy</field>
+        <field name="manual" eval="True"/>
+        <field name="limit">10</field>
+        <field name="minutes">15</field>
+    </record>
+    <record model="twitter.limit" id="limit_rate_limit_status">
+        <field name="name">rate_limit_status</field>
+        <field name="resource">application</field>
+        <field name="endpoint">/application/rate_limit_status</field>
+        <field name="manual" eval="False"/>
+        <field name="limit">180</field>
+        <field name="minutes">15</field>
+    </record>
+</odoo>

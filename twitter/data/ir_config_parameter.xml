@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record model="ir.config_parameter" id="cron_sync_profiles_limit">
+            <field name="key">twitter.cron_sync_profiles_limit</field>
+            <field name="value">50</field>
+        </record>
+        <record model="ir.config_parameter" id="cron_sync_follows_limit">
+            <field name="key">twitter.cron_sync_follows_limit</field>
+            <field name="value">10</field>
+        </record>
+        <record model="ir.config_parameter" id="cron_sync_friendships_limit">
+            <field name="key">twitter.cron_sync_friendships_limit</field>
+            <field name="value">10</field>
+        </record>
+    </data>
+</odoo>
