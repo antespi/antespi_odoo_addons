@@ -41,69 +41,6 @@ class TwitterAccount(models.Model):
     # Temporal
     next_follow = fields.Datetime(string="Next follow")
 
-    # twitter_follow.sync_follow: tapi.show_friendship --> /friendships/show.json
-    # friendships_show_limit = fields.Integer(string="Friendships show limit", readonly=True)
-    # friendships_show_remaining = fields.Integer(string="Friendships show remining", readonly=True)
-    # friendships_show_reset = fields.Datetime(string="Friendships show reset", readonly=True)
-    # friendships_show_ratio = fields.Float(string="Friendships show ratio", compute='_compute_limits')
-
-    # twitter_user._sync_friendship: tapi.followers_ids --> /followers/ids.json
-    # followers_ids_limit = fields.Integer(string="Followers ids limit", readonly=True)
-    # followers_ids_remaining = fields.Integer(string="Followers ids remining", readonly=True)
-    # followers_ids_reset = fields.Datetime(string="Followers ids reset", readonly=True)
-    # followers_ids_ratio = fields.Float(string="Followers ids ratio", compute='_compute_limits')
-
-    # twitter_user._sync_friendship: tapi.friends_ids --> /friends/ids.json
-    # friends_ids_limit = fields.Integer(string="Friends ids limit", readonly=True)
-    # friends_ids_remaining = fields.Integer(string="Friends ids remining", readonly=True)
-    # friends_ids_reset = fields.Datetime(string="Friends ids reset", readonly=True)
-    # friends_ids_ratio = fields.Float(string="Friends ids ratio", compute='_compute_limits')
-
-    # twitter_user.create_or_update_from_user_id: tapi.get_user --> /users/show.json
-    # twitter_user.sync_profile: tapi.get_user --> /users/show.json
-    # users_show_limit = fields.Integer(string="Users show limit", readonly=True)
-    # users_show_remaining = fields.Integer(string="Users show remining", readonly=True)
-    # users_show_reset = fields.Datetime(string="Users show reset", readonly=True)
-    # users_show_ratio = fields.Float(string="Users show ratio", compute='_compute_limits')
-
-    # tapi.create_friendship --> /friendships/create.json
-    # friendships_create_limit = fields.Integer(string="Friendships create limit", readonly=True, default=1000)
-    # friendships_create_remaining = fields.Integer(string="Friendships create remining", readonly=True)
-    # friendships_create_reset = fields.Datetime(string="Friendships create reset", readonly=True)
-    # friendships_create_ratio = fields.Float(string="Friendships create ratio", compute='_compute_limits')
-
-    # tapi.destroy_friendship --> /friendships/destroy.json
-    # friendships_destroy_limit = fields.Integer(string="Friendships destroy limit", readonly=True, default=15)
-    # friendships_destroy_remaining = fields.Integer(string="Friendships destroy remining", readonly=True)
-    # friendships_destroy_reset = fields.Datetime(string="Friendships destroy reset", readonly=True)
-    # friendships_destroy_ratio = fields.Float(string="Friendships destroy ratio", compute='_compute_limits')
-
-    # @api.multi
-    # def set_method_limit(self, limit, method):
-    #     self.ensure_one()
-    #     remaining = '%s_remaining' % limit
-    #     reset = '%s_reset' % limit
-    #     data = {}
-    #     if method._remaining_calls:
-    #         data[remaining] = method._remaining_calls
-    #     if method._reset_time:
-    #         data[reset] = datetime.fromtimestamp(method._reset_time)
-    #     if data:
-    #         self.write(data)
-
-    # @api.multi
-    # def set_manual_limit(self, limit, days=0, hours=0, minutes=0):
-    #     self.ensure_one()
-    #     now = fields.Datetime.now()
-    #     total = '%s_limit' % limit
-    #     remaining = '%s_remaining' % limit
-    #     reset = '%s_reset' % limit
-    #     if (not self[reset]) or (now > self[reset]) or (self[remaining] == self[total]):
-    #         self.write({
-    #             reset: now + timedelta(days=days, hours=hours, minutes=minutes),
-    #             remaining: self[total],
-    #         })
-
     friendship_ids = fields.One2many(
         string="Friendships", comodel_name='twitter.friendship', inverse_name='account_id')
     friendship_ids_fo = fields.Integer(string="Friendships following", compute='_compute_friendship', store=True)
@@ -336,60 +273,6 @@ class TwitterAccount(models.Model):
             any_account = twitter_account[0]
         return any_account.twitter_client()
 
-    # @api.depends()
-    # def _compute_limits(self):
-    #     for a in self:
-    #         a.friendships_show_ratio = 100 * (
-    #             a.friendships_show_limit > 0 and
-    #             (a.friendships_show_remaining / a.friendships_show_limit) or 0.)
-    #         a.friendships_create_ratio = 100 * (
-    #             a.friendships_create_limit > 0 and
-    #             (a.friendships_create_remaining / a.friendships_create_limit) or 0.)
-    #         a.friendships_destroy_ratio = 100 * (
-    #             a.friendships_destroy_limit > 0 and
-    #             (a.friendships_destroy_remaining / a.friendships_destroy_limit) or 0.)
-    #         a.followers_ids_ratio = 100 * (
-    #             a.followers_ids_limit > 0 and
-    #             (a.followers_ids_remaining / a.followers_ids_limit) or 0.)
-    #         a.friends_ids_ratio = 100 * (
-    #             a.friends_ids_limit > 0 and
-    #             (a.friends_ids_remaining / a.friends_ids_limit) or 0.)
-    #         a.users_show_ratio = 100 * (
-    #             a.users_show_limit > 0 and
-    #             (a.users_show_remaining / a.users_show_limit) or 0.)
-
-    # @api.model
-    # def mapping_limits(self, limits):
-    #     r = limits['resources']
-    #     return {
-    #         'friendships_show_limit': r['friendships']['/friendships/show']['limit'],
-    #         'friendships_show_remaining': r['friendships']['/friendships/show']['remaining'],
-    #         'friendships_show_reset': datetime.fromtimestamp(r['friendships']['/friendships/show']['reset']),
-    #         'followers_ids_limit': r['followers']['/followers/ids']['limit'],
-    #         'followers_ids_remaining': r['followers']['/followers/ids']['remaining'],
-    #         'followers_ids_reset': datetime.fromtimestamp(r['followers']['/followers/ids']['reset']),
-    #         'friends_ids_limit': r['friends']['/friends/ids']['limit'],
-    #         'friends_ids_remaining': r['friends']['/friends/ids']['remaining'],
-    #         'friends_ids_reset': datetime.fromtimestamp(r['friends']['/friends/ids']['reset']),
-    #         'users_show_limit': r['users']['/users/show/:id']['limit'],
-    #         'users_show_remaining': r['users']['/users/show/:id']['remaining'],
-    #         'users_show_reset': datetime.fromtimestamp(r['users']['/users/show/:id']['reset']),
-    #     }
-
-    # @api.multi
-    # def safe_write(self, data):
-    #     ok = False
-    #     retry = 0
-    #     while not ok and retry < SAFE_WRITE_NAX_RETRIES:
-    #         retry += 1
-    #         try:
-    #             ok = self.write(data)
-    #         except psycopg2.extensions.TransactionRollbackError:
-    #             _logger.info("safe_write: Rollback exception, retry... (%s/%s)", retry, SAFE_WRITE_NAX_RETRIES)
-    #             self.env.cr.rollback()
-    #             pass
-    #     return ok
-
     @api.multi
     def need_friendship_update(self):
         now = fields.Datetime.now()
@@ -419,9 +302,7 @@ class TwitterAccount(models.Model):
                 ('account_id', '=', a.id),
                 ('manual', '=', False),
             ]).update_from_limits(limits)
-            # data = self.mapping_limits(limits)
             a.last_limit_update = fields.Datetime.now()
-            # a.safe_write(data)
 
     @api.model
     def search_from_user_id(self, user_id):
@@ -438,16 +319,12 @@ class TwitterAccount(models.Model):
                 a.sync_limits()
             if a.need_friendship_update():
                 a.sync_friendships()
-            a.action_next_follow()
+            # a.action_next_follow()
         not test and self.env.cr.commit()
         self.env['twitter.user'].cron_sync_profiles()
         not test and self.env.cr.commit()
         self.env['twitter.friendship'].cron_sync_friendships()
         not test and self.env.cr.commit()
-        # self.env['twitter.follow'].cron_sync_follows()
-        # not test and self.env.cr.commit()
-        # self.env['twitter.user'].cron_sync_friendships()
-        # not test and self.env.cr.commit()
 
     @api.multi
     def action_next_follow(self):

@@ -49,7 +49,6 @@ class TwitterAccountLimit(models.Model):
                 continue
             now = fields.Datetime.now()
             if (not al.reset) or (now > al.reset) or (al.remaining == al.limit):
-                # safe_write
                 al.write({
                     'reset': now + timedelta(minutes=al.minutes),
                     'remaining': al.limit,
@@ -71,5 +70,4 @@ class TwitterAccountLimit(models.Model):
         if method._reset_time:
             data['reset'] = datetime.fromtimestamp(method._reset_time)
         if data:
-            # safe_write
             self.write(data)

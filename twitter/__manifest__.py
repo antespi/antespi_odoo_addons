@@ -19,7 +19,6 @@
         'views/twitter_app_views.xml',
         'views/twitter_limit_views.xml',
         'views/twitter_user_views.xml',
-        # 'views/twitter_follow_views.xml',
         'views/twitter_friendship_views.xml',
 
         'data/ir_cron.xml',

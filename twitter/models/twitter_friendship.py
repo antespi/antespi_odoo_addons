@@ -66,16 +66,6 @@ class TwitterFriendship(models.Model):
          "[SQL Constraint] Account and Friend must be unique!"),
     ]
 
-    # @api.model
-    # def create(self, vals):
-    #     _logger.info("create: vals = %s", pformat(vals))
-    #     return super(TwitterFriendship, self).create(vals)
-
-    # @api.multi
-    # def write(self, vals):
-    #     _logger.info("write: vals = %s", pformat(vals))
-    #     return super(TwitterFriendship, self).write(vals)
-
     @api.depends('account_id.display_name', 'friend_id.display_name')
     def _compute_display_name(self):
         for f in self:
@@ -237,9 +227,6 @@ class TwitterFriendship(models.Model):
                     ('account_id', '=', a.id),
                     ('last_update', '=', False)],
                  'create_date ASC', 'pending friendships'),
-                # AEA: Not needed, we can calculate from account followers and friends ids list
-                # ([('account_id', '=', a.id)],
-                #  'last_update ASC', 'refresh friendships'),
             ]
             remaining = fs_limit
             for domain, order, t in cases:

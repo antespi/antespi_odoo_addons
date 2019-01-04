@@ -7,7 +7,6 @@ _logger = logging.getLogger(__name__)
 
 PROFILE_SYNC_THRESHOLD = 7
 DEFAULT_CRON_SYNC_PROFILES_LIMIT = 50
-# DEFAULT_CRON_SYNC_FRIENDSHIPS_LIMIT = 2
 SYNC_FRIENDSHIPS_FAKE_USERS_LIMIT = 1000
 
 
@@ -39,17 +38,6 @@ class TwitterUser(models.Model):
     discovered_by = fields.Char(string="Discovered by", readonly=True)
 
     twitter_error = fields.Text(string="Error", readonly=True)
-
-    # follower_ids = fields.One2many(
-    #     string="Followers", comodel_name='twitter.follow', inverse_name='friend_id')
-    # follow_ids_count = fields.Integer(string="Followers count", compute='_compute_follow', store=True)
-    # follow_ids_total = fields.Integer(string="Followers total", compute='_compute_follow', store=True)
-    # follow_ids_label = fields.Char(string="Followers label", compute='_compute_follow_label')
-    # friend_ids = fields.One2many(
-    #     string="Friends", comodel_name='twitter.follow', inverse_name='follower_id')
-    # friend_ids_count = fields.Integer(string="Friends count", compute='_compute_follow', store=True)
-    # friend_ids_total = fields.Integer(string="Friends total", compute='_compute_follow', store=True)
-    # friend_ids_label = fields.Char(string="Friends label", compute='_compute_follow_label')
 
     friendship_ids = fields.One2many(
         string="Friendships", comodel_name='twitter.friendship', inverse_name='friend_id')
@@ -159,19 +147,6 @@ class TwitterUser(models.Model):
             ta = discover.get_twitter_account()
         return ta
 
-    # @api.multi
-    # def _fake_follows(self, follower, friend, following):
-    #     follows = self.env['twitter.follow']
-    #     cases = [(follower, friend, following), (friend, follower, None)]
-    #     for a, b, f in cases:
-    #         follow = self.env['twitter.follow'].create_or_update_fake(a, b, following=f)
-    #         follows += follow
-    #         if follow.last_update:
-    #             _logger.info("[Follow] %s %s", f, follow.display_name)
-    #         else:
-    #             _logger.info("[Fake follow] %s %s", f, follow.display_name)
-    #     return follows
-
     @api.multi
     def _discover_from_friendship(self, friendship_type='followers'):
         now = fields.Datetime.now()
@@ -187,11 +162,6 @@ class TwitterUser(models.Model):
             if not (ta and tu):
                 _logger.warning("User %s has not account or discovered_by", u.display_name)
             method = getattr(ta, method_name, None)
-            # obj = u.with_context(screen_name=u.screen_name)
-            # current = obj.env['twitter.follow'].search([
-            #     (methods.get(friendship_type)[1], '=', u.id),
-            #     ('following', '=', True),
-            # ])
             _logger.info("discover_from_%s: @%s", friendship_type, u.screen_name)
             fc = 0
             n_known = 0
@@ -211,13 +181,6 @@ class TwitterUser(models.Model):
                     else:
                         _logger.info("[#] %s @%s", fc, user.twitter_id)
                         n_fake += 1
-                # if u != tu:
-                #     continue
-                # if friendship_type == 'followers':
-                #     follows = obj._fake_follows(user, u, True)
-                # else:
-                #     follows = obj._fake_follows(u, user, True)
-                # current -= follows
             if fc > 0:
                 _logger.info(
                     "sync_%s: @%s : %s users\n"
@@ -228,15 +191,10 @@ class TwitterUser(models.Model):
                     n_new, '%.2f' % ((n_new / fc) * 100),
                     n_fake, '%.2f' % ((n_fake / fc) * 100),
                     n_known, '%.2f' % ((n_known / fc) * 100))
-            # current.write({
-            #     'following': False,
-            #     'last_update': False,
-            # })
             u.write({
                 'last_%s_count' % friendship_type: fc,
                 'last_%s_date' % friendship_type: now,
             })
-            # u._compute_follow()
 
     @api.multi
     def discover_followers(self):
@@ -260,29 +218,6 @@ class TwitterUser(models.Model):
             data = self.create_fake_prepare(user_id, discovered_by=discovered_by)
             user = self.create(data)
         return user
-
-    # @api.depends('friend_ids.following', 'follower_ids.following')
-    # def _compute_follow_label(self):
-    #     for u in self:
-    #         u.follow_ids_label = "%s / %s" % (u.follow_ids_count, u.follow_ids_total)
-    #         u.friend_ids_label = "%s / %s" % (u.friend_ids_count, u.friend_ids_total)
-
-    # @api.depends('friend_ids.following', 'follower_ids.following')
-    # def _compute_follow(self):
-    #     for u in self:
-    #         if self.env.context.get('screen_name') == u.screen_name:
-    #             continue
-    #         # _logger.info("_compute_follow: %s", u.screen_name)
-    #         follow_ids = self.env['twitter.follow'].search([
-    #             ('friend_id', '=', u.id),
-    #         ])
-    #         u.follow_ids_total = len(follow_ids)
-    #         u.follow_ids_count = len(follow_ids.filtered('following'))
-    #         friend_ids = self.env['twitter.follow'].search([
-    #             ('follower_id', '=', u.id),
-    #         ])
-    #         u.friend_ids_total = len(friend_ids)
-    #         u.friend_ids_count = len(friend_ids.filtered('following'))
 
     @api.depends('friendship_ids.following', 'friendship_ids.followed_back')
     def _compute_friendship(self):
@@ -308,28 +243,6 @@ class TwitterUser(models.Model):
         action['domain'] = "[('friend_id', 'in', %s)]" % self.ids
         action['views'] = [(tree_view.id, 'tree'), (form_view.id, 'form')]
         return action
-
-    # @api.multi
-    # def action_view_followers(self):
-    #     action = self.env.ref('twitter.twitter_follow_action').read()[0]
-    #     form_view = self.env.ref('twitter.twitter_follow_view_form', False)
-    #     tree_view = self.env.ref('twitter.twitter_followers_view_tree', False)
-    #     action['name'] = "Followers"
-    #     action['context'] = "{'search_default_following': True}"
-    #     action['domain'] = "[('friend_id', 'in', %s)]" % self.ids
-    #     action['views'] = [(tree_view.id, 'tree'), (form_view.id, 'form')]
-    #     return action
-
-    # @api.multi
-    # def action_view_friends(self):
-    #     action = self.env.ref('twitter.twitter_follow_action').read()[0]
-    #     form_view = self.env.ref('twitter.twitter_follow_view_form', False)
-    #     tree_view = self.env.ref('twitter.twitter_friends_view_tree', False)
-    #     action['name'] = "Friends"
-    #     action['context'] = "{'search_default_following': True}"
-    #     action['domain'] = "[('follower_id', 'in', %s)]" % self.ids
-    #     action['views'] = [(tree_view.id, 'tree'), (form_view.id, 'form')]
-    #     return action
 
     @api.model
     def mapping_from_user(self, user):
@@ -367,16 +280,6 @@ class TwitterUser(models.Model):
     def search_from_user(self, user):
         user_id = user.id_str
         return self.search_from_user_id(user_id)
-
-    # @api.model
-    # def create_or_update_from_user_id(self, user_id, twitter_account=None):
-    #     twitter_user = self.search([('twitter_id', '=', str(user_id))])
-    #     if twitter_user.need_update():
-    #         if not twitter_account:
-    #             twitter_account = self.env['twitter.account'].any_twitter_account()
-    #         user = twitter_account.tapi_get_user(user_id)
-    #         twitter_user = self.create_or_update_from_user(user)
-    #     return twitter_user
 
     @api.model
     def create_or_update_from_user(self, user):
@@ -455,46 +358,6 @@ class TwitterUser(models.Model):
                 remaining -= len(users)
                 if not remaining > 0:
                     break
-
-    # @api.model
-    # def cron_sync_friendships(self):
-    #     accounts = self.env['twitter.account'].all_twitter_accounts()
-    #     cfg = self.env['ir.config_parameter'].sudo()
-    #     max_fs_limit = int(cfg.get_param(
-    #         'twitter.cron_sync_friendships_limit', DEFAULT_CRON_SYNC_FRIENDSHIPS_LIMIT))
-    #     fs_limit = len(accounts) > 0 and max_fs_limit / len(accounts) or 0
-    #     for a in accounts:
-    #         fake_users_count = self.search_count([
-    #             ('last_update', '=', False),
-    #             ('screen_name', '=', False),
-    #             ('discovered_by', '=', a.user_id.screen_name)
-    #         ])
-    #         if fake_users_count > SYNC_FRIENDSHIPS_FAKE_USERS_LIMIT:
-    #             _logger.info("cron_sync_friendships: Too many fake users (%s > %s)",
-    #                          fake_users_count, SYNC_FRIENDSHIPS_FAKE_USERS_LIMIT)
-    #             continue
-    #         cases = [
-    #             ([
-    #                 ('last_followers_date', '=', False),
-    #                 ('discovered_by', '=', a.user_id.screen_name)],
-    #              'followers', 'create_date ASC', 'non-discovered followers users'),
-    #             ([
-    #                 ('last_friends_date', '=', False),
-    #                 ('discovered_by', '=', a.user_id.screen_name)],
-    #              'friends', 'create_date ASC', 'non-discovered friends users'),
-    #             ([('discovered_by', '=', a.user_id.screen_name)],
-    #              'followers', 'last_followers_date ASC', 'old-discovered followers users'),
-    #             ([('discovered_by', '=', a.user_id.screen_name)],
-    #              'friends', 'last_friends_date ASC', 'old-discovered friends users'),
-    #         ]
-    #         remaining = fs_limit
-    #         for domain, ft, order, t in cases:
-    #             users = self.search(domain, limit=remaining, order=order)
-    #             _logger.info("cron_sync_friendships: %s %s", len(users), t)
-    #             users._sync_friendship(friendship_type=ft)
-    #             remaining -= len(users)
-    #             if not remaining > 0:
-    #                 break
 
     @api.multi
     def action_follow(self):
