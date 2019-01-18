@@ -24,6 +24,7 @@ MAX_FRIENDSHIP_IDS = 2  # 2 pages of 5000 friends/followers (10k)
 class TwitterAccount(models.Model):
     _description = 'Twitter account'
     _name = 'twitter.account'
+    _rec_name = 'user_id'
 
     _tapi = None
     twitter_app_id = fields.Many2one(
@@ -47,6 +48,15 @@ class TwitterAccount(models.Model):
     friendship_ids_fb = fields.Integer(string="Friendships following back", compute='_compute_friendship', store=True)
     friendship_ids_total = fields.Integer(string="Friendships total", compute='_compute_friendship', store=True)
     friendship_ids_label = fields.Char(string="Friendship label", compute='_compute_friendship_label')
+
+    @api.depends('twitter_app_id.name', 'user_id.screen_name')
+    def _compute_display_name(self):
+        for a in self:
+            if a.user_id:
+                a.display_name = "@%s via %s" % (
+                    a.user_id.screen_name, a.twitter_app_id.name)
+            else:
+                a.display_name = "Link pending via %s" % (a.twitter_app_id.name, )
 
     @api.depends('friendship_ids.following', 'friendship_ids.followed_back')
     def _compute_friendship(self):
@@ -102,7 +112,7 @@ class TwitterAccount(models.Model):
                 fc += 1
                 friend = u.search_from_user_id(friend_id)
                 if not friend:
-                    friend = u.create_fake_user_id(friend_id, discovered_by=u.screen_name)
+                    friend = u.search_or_create_fake_user_id(friend_id, discovered_by=u.screen_name)
                     _logger.info("[+] %s @%s", fc, friend.twitter_id)
                     n_new += 1
                 else:
@@ -203,11 +213,46 @@ class TwitterAccount(models.Model):
         return self._tapi_friendship_ids(twitter_id, 'friends_ids', limit=limit, test=test)
 
     @api.multi
+    def tapi_statuses_lookup(self, twitter_ids):
+        self.ensure_one()
+        tapi = self.twitter_client()
+        al = self.wait_for_more_limit('statuses_lookup')
+        method = tapi._statuses_lookup(
+            id=tweepy.utils.list_to_csv(twitter_ids), create=True, tweet_mode='extended')
+        statuses = method.execute()
+        al.update_from_method(method)
+        return statuses
+
+    @api.multi
+    def tapi_get_status(self, twitter_id):
+        self.ensure_one()
+        tapi = self.twitter_client()
+        al = self.wait_for_more_limit('statuses_show')
+        method = tapi.get_status(id=twitter_id, create=True, tweet_mode='extended')
+        status = method.execute()
+        al.update_from_method(method)
+        return status
+
+    @api.multi
+    def tapi_lookup_users(self, twitter_ids):
+        self.ensure_one()
+        tapi = self.twitter_client()
+        al = self.wait_for_more_limit('users_lookup')
+        post_data = {
+            'user_id': tweepy.utils.list_to_csv(twitter_ids),
+            'tweet_mode': 'extended',
+        }
+        method = tapi._lookup_users(post_data=post_data, create=True)
+        users = method.execute()
+        al.update_from_method(method)
+        return users
+
+    @api.multi
     def tapi_get_user(self, twitter_id):
         self.ensure_one()
         tapi = self.twitter_client()
         al = self.wait_for_more_limit('users_show')
-        method = tapi.get_user(user_id=twitter_id, create=True)
+        method = tapi.get_user(user_id=twitter_id, create=True, tweet_mode='extended')
         user = method.execute()
         al.update_from_method(method)
         return user
@@ -240,14 +285,14 @@ class TwitterAccount(models.Model):
         self.env['twitter.user'].create_or_update_from_user(user)
         return user
 
-    @api.depends('twitter_app_id.name', 'user_id.screen_name')
-    def _compute_display_name(self):
-        for a in self:
-            if a.user_id:
-                a.display_name = "@%s via %s" % (
-                    a.user_id.screen_name, a.twitter_app_id.name)
-            else:
-                a.display_name = "Link pending via %s" % (a.twitter_app_id.name, )
+    @api.model
+    def selected_twitter_account(self):
+        # Look into context
+        res = self.env.context.get('twitter_account')
+        # Look into current user
+        res = res or self.env.user.twitter_account_id
+        # Get any active account
+        return res or self.any_twitter_account()
 
     @api.model
     def all_twitter_accounts(self):
@@ -259,11 +304,10 @@ class TwitterAccount(models.Model):
 
     @api.model
     def any_twitter_account(self):
-        return self.search([
-            ('user_id', '!=', False),
-            ('access_token', '!=', False),
-            ('access_secret', '!=', False),
-        ], limit=1)
+        accounts = self.all_twitter_accounts()
+        if accounts:
+            return random.choice(accounts)
+        return accounts
 
     @api.model
     def any_twitter_client(self, twitter_account=None):
@@ -294,14 +338,22 @@ class TwitterAccount(models.Model):
 
     @api.multi
     def sync_limits(self):
+        al = self.env['twitter.account.limit']
         for a in self:
+            a.create_account_limits()
             tapi = a.twitter_client()
             _logger.info("twitter_account::sync_limits: %s", a.display_name)
+            # Update auto limits from Twitter info
             limits = tapi.rate_limit_status()
-            self.env['twitter.account.limit'].search([
+            al.search([
                 ('account_id', '=', a.id),
                 ('manual', '=', False),
             ]).update_from_limits(limits)
+            # Update manual limits from datetime
+            al.search([
+                ('account_id', '=', a.id),
+                ('manual', '=', True),
+            ]).reset_manual()
             a.last_limit_update = fields.Datetime.now()
 
     @api.model
@@ -324,6 +376,8 @@ class TwitterAccount(models.Model):
         self.env['twitter.user'].cron_sync_profiles()
         not test and self.env.cr.commit()
         self.env['twitter.friendship'].cron_sync_friendships()
+        not test and self.env.cr.commit()
+        self.env['twitter.status'].cron_sync_statuses()
         not test and self.env.cr.commit()
 
     @api.multi

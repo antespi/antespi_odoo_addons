@@ -28,6 +28,15 @@ def escape(s):
     return urllib.parse.quote(s, safe='~')
 
 
+def crop_text(text, maxlen):
+    crop_len = maxlen - 3
+    return (text[:crop_len] + '...') if text and len(text) > maxlen else text
+
+
+def batch_split(items, chunk_size=100):
+    return [items[i:i + chunk_size] for i in range(0, len(items), chunk_size)]
+
+
 def oauth_timestamp():
     return int(time.time())
 

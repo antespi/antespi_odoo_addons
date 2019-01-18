@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Copyright 2019 Antonio Espinosa <antespi@gmail.com> -->
 <odoo>
-    <menuitem id="twitter_menu" name="Twitter"
-              groups="twitter.group_twitter"
-              web_icon="twitter,static/description/icon.png"/>
-    <menuitem id="twitter_users_menu" name="Users" parent="twitter_menu"/>
-    <menuitem id="twitter_tweets_menu" name="Tweets" parent="twitter_menu"/>
-    <menuitem id="twitter_actions_menu" name="Actions" parent="twitter_menu"/>
-    <menuitem id="twitter_config_menu" name="Configuration" parent="twitter_menu"/>
+
+<menuitem id="twitter_menu" name="Twitter"
+          groups="twitter.group_twitter"
+          web_icon="twitter,static/description/icon.png"/>
+<menuitem id="twitter_users_menu" name="Users" parent="twitter_menu"/>
+<menuitem id="twitter_tweets_menu" name="Tweets" parent="twitter_menu"/>
+<menuitem id="twitter_actions_menu" name="Actions" parent="twitter_menu"/>
+<menuitem id="twitter_config_menu" name="Configuration" parent="twitter_menu"/>
+
 </odoo>

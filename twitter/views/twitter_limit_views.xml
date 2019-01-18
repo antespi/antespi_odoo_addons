@@ -2,63 +2,64 @@
 <!-- Copyright 2019 Antonio Espinosa <antespi@gmail.com> -->
 <odoo>
 
-    <record id="twitter_limit_view_form" model="ir.ui.view">
-        <field name="name">Twitter limit form</field>
-        <field name="model">twitter.limit</field>
-        <field name="arch" type="xml">
-            <form string="Twitter limit">
-                <sheet>
+<record id="twitter_limit_view_form" model="ir.ui.view">
+    <field name="name">Twitter limit form</field>
+    <field name="model">twitter.limit</field>
+    <field name="arch" type="xml">
+        <form string="Twitter limit">
+            <sheet>
+                <group>
                     <group>
-                        <group>
-                            <field name="name"/>
-                            <field name="resource"/>
-                            <field name="endpoint"/>
-                        </group>
-                        <group>
-                            <field name="manual"/>
-                            <field name="limit"/>
-                            <field name="minutes"/>
-                        </group>
+                        <field name="name"/>
+                        <field name="resource"/>
+                        <field name="endpoint"/>
                     </group>
-                </sheet>
-            </form>
-        </field>
-    </record>
+                    <group>
+                        <field name="manual"/>
+                        <field name="limit"/>
+                        <field name="minutes"/>
+                    </group>
+                </group>
+            </sheet>
+        </form>
+    </field>
+</record>
 
-    <record id="twitter_limit_view_tree" model="ir.ui.view">
-        <field name="name">Twitter limit tree</field>
-        <field name="model">twitter.limit</field>
-        <field name="arch" type="xml">
-            <tree string="Twitter limits">
-                <field name="name"/>
-                <field name="resource"/>
-                <field name="endpoint"/>
-                <field name="limit"/>
-                <field name="minutes"/>
-                <field name="manual"/>
-            </tree>
-        </field>
-    </record>
+<record id="twitter_limit_view_tree" model="ir.ui.view">
+    <field name="name">Twitter limit tree</field>
+    <field name="model">twitter.limit</field>
+    <field name="arch" type="xml">
+        <tree string="Twitter limits">
+            <field name="name"/>
+            <field name="resource"/>
+            <field name="endpoint"/>
+            <field name="limit"/>
+            <field name="minutes"/>
+            <field name="manual"/>
+        </tree>
+    </field>
+</record>
 
-    <record id="twitter_limit_view_filter" model="ir.ui.view">
-        <field name="name">Twitter limit filter</field>
-        <field name="model">twitter.limit</field>
-        <field name="arch" type="xml">
-            <search string="Twitter limits">
-                <field name="name"/>
-                <field name="resource"/>
-                <field name="endpoint"/>
-            </search>
-        </field>
-    </record>
+<record id="twitter_limit_view_filter" model="ir.ui.view">
+    <field name="name">Twitter limit filter</field>
+    <field name="model">twitter.limit</field>
+    <field name="arch" type="xml">
+        <search string="Twitter limits">
+            <field name="name"/>
+            <field name="resource"/>
+            <field name="endpoint"/>
+        </search>
+    </field>
+</record>
 
-    <record id="twitter_limit_action" model="ir.actions.act_window">
-        <field name="name">Twitter limits</field>
-        <field name="res_model">twitter.limit</field>
-        <field name="view_mode">tree,form</field>
-        <field name="search_view_id" ref="twitter.twitter_limit_view_filter"/>
-    </record>
+<record id="twitter_limit_action" model="ir.actions.act_window">
+    <field name="name">Twitter limits</field>
+    <field name="res_model">twitter.limit</field>
+    <field name="view_mode">tree,form</field>
+    <field name="search_view_id" ref="twitter.twitter_limit_view_filter"/>
+</record>
 
-    <menuitem id="twitter_limit_menu" name="Twitter Limits" parent="twitter_config_menu"
-              action="twitter.twitter_limit_action" />
+<menuitem id="twitter_limit_menu" name="Twitter Limits" parent="twitter_config_menu"
+          action="twitter.twitter_limit_action" />
+
 </odoo>

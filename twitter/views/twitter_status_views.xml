@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2019 Antonio Espinosa <antespi@gmail.com> -->
+<odoo>
+
+<record id="twitter_status_view_form" model="ir.ui.view">
+    <field name="name">Twitter status form</field>
+    <field name="model">twitter.status</field>
+    <field name="arch" type="xml">
+        <form string="Tweet">
+            <header>
+                <!--button name="retweet"
+                    string="Retweet"
+                    type="object"/-->
+                <button name="sync_status"
+                    string="Sync Tweet"
+                    type="object"/>
+            </header>
+            <sheet>
+                <!--div class="oe_button_box" name="button_box">
+                    <button name="action_view_friendships" type="object" class="oe_stat_button" icon="fa-users">
+                        <field string="Friendships" name="friendship_ids_label" widget="statinfo"/>
+                    </button>
+                </div-->
+                <group>
+                    <group>
+                        <field name="author_id"/>
+                        <field name="created_at"/>
+                        <field name="source"/>
+                        <field name="lang"/>
+                        <field name="place"/>
+                        <field name="truncated"/>
+                    </group>
+                    <group>
+                        <field name="twitter_id"/>
+                        <field name="twitter_url" widget="url"/>
+                        <field name="retweet_count"/>
+                        <field name="favorite_count"/>
+                        <field name="last_update"/>
+                    </group>
+                </group>
+                <!--group attrs="{'invisible': [('twitter_error', '=', False)]}">
+                    <field name="twitter_error"/>
+                </group-->
+                <group>
+                    <field name="full_text"/>
+                </group>
+                <notebook>
+                    <page string="Relations">
+                        <group>
+                            <group>
+                                <field name="quoted_status_id"/>
+                                <field name="retweeted_status_id"/>
+                            </group>
+                            <group>
+                                <field name="in_reply_to_status_id"/>
+                                <field name="in_reply_to_user_id"/>
+                            </group>
+                        </group>
+                    </page>
+                </notebook>
+            </sheet>
+        </form>
+    </field>
+</record>
+
+<record id="twitter_status_view_tree" model="ir.ui.view">
+    <field name="name">Twitter status tree</field>
+    <field name="model">twitter.status</field>
+    <field name="arch" type="xml">
+        <tree string="Tweets">
+            <field name="created_at"/>
+            <field name="author_id"/>
+            <field name="short_text"/>
+            <field name="retweet_count"/>
+            <field name="favorite_count"/>
+            <field name="lang"/>
+            <field name="source"/>
+        </tree>
+    </field>
+</record>
+
+<record id="twitter_status_view_filter" model="ir.ui.view">
+    <field name="name">Twitter status filter</field>
+    <field name="model">twitter.status</field>
+    <field name="arch" type="xml">
+        <search string="Tweets">
+            <field name="full_text"
+                filter_domain="['|', ('display_name', 'ilike', self), ('full_text', 'ilike', self)]"/>
+            <field name="source"/>
+            <field name="place"/>
+            <field name="lang"/>
+            <filter name="fake" string="Fake tweets"
+                    domain="[('author_id', '=', False)]"/>
+            <filter name="pending" string="Pending tweets"
+                    domain="[('author_id', '!=', False), ('last_update', '=', False)]"/>
+            <filter name="truncated" string="Truncated tweets"
+                    domain="[('author_id', '!=', False), ('truncated', '=', True)]"/>
+            <separator/>
+            <filter name="replies" string="Replies" domain="[('in_reply_to_status_id', '!=', False)]"/>
+            <filter name="quotes" string="Quotes" domain="[('quoted_status_id', '!=', False)]"/>
+            <filter name="quotes" string="Retweets" domain="[('retweeted_status_id', '!=', False)]"/>
+            <filter name="authored" string="Authored"
+                    domain="[('in_reply_to_status_id', '=', False),
+                             ('quoted_status_id', '=', False),
+                             ('retweeted_status_id', '=', False)]"/>
+            <group expand="0" name="group_by" string="Group By">
+                <filter name="group_author_id" string="Author" domain="[]" context="{'group_by' : 'author_id'}" />
+                <filter name="group_created_at" string="Date" domain="[]" context="{'group_by' : 'created_at'}" />
+                <filter name="group_source" string="Source" domain="[]" context="{'group_by' : 'source'}" />
+                <filter name="group_place" string="Place" domain="[]" context="{'group_by' : 'place'}" />
+                <filter name="group_lang" string="Language" context="{'group_by': 'lang'}"/>
+            </group>
+        </search>
+    </field>
+</record>
+
+<record id="twitter_status_action" model="ir.actions.act_window">
+    <field name="name">Tweets</field>
+    <field name="res_model">twitter.status</field>
+    <field name="view_mode">tree,form</field>
+    <field name="search_view_id" ref="twitter.twitter_status_view_filter"/>
+</record>
+
+<menuitem id="twitter_tweets_list_menu" name="Tweets" parent="twitter_tweets_menu"
+          action="twitter.twitter_status_action" sequence="10"/>
+</odoo>

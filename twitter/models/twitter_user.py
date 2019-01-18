@@ -2,6 +2,7 @@
 
 import tweepy
 from odoo import api, fields, models
+from .common import batch_split
 import logging
 _logger = logging.getLogger(__name__)
 
@@ -15,7 +16,7 @@ class TwitterUser(models.Model):
     _name = 'twitter.user'
     _rec_name = 'screen_name'
 
-    twitter_id = fields.Char(string="Twitter ID", readonly=True)
+    twitter_id = fields.Char(string="Twitter ID", readonly=True, index=True)
     twitter_url = fields.Char(string="Twitter URL", compute='_compute_url')
     name = fields.Char(string="Name", readonly=True)
     screen_name = fields.Char(string="Username", readonly=True)
@@ -30,10 +31,9 @@ class TwitterUser(models.Model):
     favourites_count = fields.Integer(string="# Likes", readonly=True)
     listed_count = fields.Integer(string="# Listed", readonly=True)
 
-    # TODO
-    # protected = fields.Boolean()
-    # verified = fields.Boolean()
-    # last_status_date = fields.Datetime()
+    protected = fields.Boolean(string="Protected", readonly=True)
+    verified = fields.Boolean(string="Verified", readonly=True)
+    last_status_date = fields.Datetime(string="Last status", readonly=True)
 
     discovered_by = fields.Char(string="Discovered by", readonly=True)
 
@@ -122,10 +122,24 @@ class TwitterUser(models.Model):
         })
 
     @api.multi
-    def sync_profile(self):
+    def _sync_profile_lookup_users(self):
+        ta = self[0].get_twitter_account()
+        batches = batch_split(self, chunk_size=100)
+        for b in batches:
+            try:
+                users = ta.tapi_lookup_users(b.mapped('twitter_id'))
+                for user in users:
+                    _logger.info("lookup_users: %s", user.id_str)
+                    self.with_context(twitter_account=ta).create_or_update_from_user(user)
+            except tweepy.error.TweepError as e:
+                _logger.info("Twitter error: %s", e)
+                b.write({'twitter_error': str(e)})
+
+    @api.multi
+    def _sync_profile_get_user(self):
         for u in self:
             try:
-                _logger.info("sync_profile: %s", u.display_name)
+                _logger.info("get_user: %s", u.display_name)
                 ta = u.get_twitter_account()
                 user = ta.tapi_get_user(u.twitter_id)
                 u.with_context(twitter_account=ta).update_from_user(user)
@@ -134,18 +148,24 @@ class TwitterUser(models.Model):
                 u.twitter_error = str(e)
 
     @api.multi
+    def sync_profile(self):
+        if len(self) > 10:
+            return self._sync_profile_lookup_users()
+        return self._sync_profile_get_user()
+
+    @api.multi
     def get_twitter_account(self):
-        self and self.ensure_one()
         ta = self.env['twitter.account']
         if not self:
-            return ta
+            return ta.selected_twitter_account()
+        self.ensure_one()
         ta = ta.search([
             ('user_id', '=', self.id),
         ], limit=1)
         if not ta and self.discovered_by:
             discover = self.search_from_screen_name(self.discovered_by)
             ta = discover.get_twitter_account()
-        return ta
+        return ta or ta.selected_twitter_account()
 
     @api.multi
     def _discover_from_friendship(self, friendship_type='followers'):
@@ -171,7 +191,7 @@ class TwitterUser(models.Model):
                 fc += 1
                 user = self.search_from_user_id(user_id)
                 if not user:
-                    user = u.create_fake_user_id(user_id, discovered_by=tu.screen_name)
+                    user = u.search_or_create_fake_user_id(user_id, discovered_by=tu.screen_name)
                     _logger.info("[+] %s @%s", fc, user.twitter_id)
                     n_new += 1
                 else:
@@ -212,7 +232,9 @@ class TwitterUser(models.Model):
         }
 
     @api.model
-    def create_fake_user_id(self, user_id, discovered_by=False):
+    def search_or_create_fake_user_id(self, user_id, discovered_by=False):
+        if not user_id:
+            return self.browse()
         user = self.search_from_user_id(user_id)
         if not user:
             data = self.create_fake_prepare(user_id, discovered_by=discovered_by)
@@ -245,8 +267,15 @@ class TwitterUser(models.Model):
         return action
 
     @api.model
+    def status_from_user(self, user, author):
+        if not hasattr(user, 'status'):
+            return False
+        return self.env['twitter.status'].with_context(
+            status_author=author).create_or_update_from_status(user.status)
+
+    @api.model
     def mapping_from_user(self, user):
-        return {
+        data = {
             'twitter_id': user.id_str,
             'name': user.name or user.screen_name,
             'screen_name': user.screen_name,
@@ -259,7 +288,10 @@ class TwitterUser(models.Model):
             'followers_count': user.followers_count,
             'favourites_count': user.favourites_count,
             'listed_count': user.listed_count,
+            'protected': user.protected,
+            'verified': user.verified,
         }
+        return data
 
     @api.multi
     def need_update(self):
@@ -283,12 +315,12 @@ class TwitterUser(models.Model):
 
     @api.model
     def create_or_update_from_user(self, user):
-        twitter_user = self.search_from_user(user)
-        if twitter_user:
-            twitter_user.update_from_user(user)
+        u = self.search_from_user(user)
+        if u:
+            u.update_from_user(user)
         else:
-            twitter_user = self.create_from_user(user)
-        return twitter_user
+            u = self.create_from_user(user)
+        return u
 
     @api.model
     def create_from_user(self, user):
@@ -297,12 +329,19 @@ class TwitterUser(models.Model):
         ta = self.env.context.get('twitter_account')
         if ta:
             data['discovered_by'] = ta.user_id.screen_name
-        return self.create(data)
+        u = self.create(data)
+        status = self.status_from_user(user, u)
+        if status:
+            u.last_status_date = status.created_at
+        return u
 
     @api.multi
     def update_from_user(self, user):
         self.ensure_one()
         data = self.mapping_from_user(user)
+        status = self.status_from_user(user, self)
+        if status:
+            data['last_status_date'] = status.created_at
         data = self.changed_fields_filter(data)
         data['last_update'] = fields.Datetime.now()
         ta = self.env.context.get('twitter_account')
@@ -325,10 +364,12 @@ class TwitterUser(models.Model):
             'friends_count',
             'statuses_count',
             'listed_count',
+            'protected',
+            'verified',
+            'created_at',
+            'last_status_date',
         }
         res = {k: data[k] for k in common if k in data and self[k] != data[k]}
-        if 'created_at' in data and fields.Date.to_date(self.created_at) != data['created_at']:
-            res['created_at'] = data['created_at']
         return res
 
     @api.model
@@ -349,6 +390,11 @@ class TwitterUser(models.Model):
                     ('twitter_error', '=', False),
                     ('last_update', '=', False),
                     ('discovered_by', '=', a.user_id.screen_name)], 'create_date ASC', 'pending users'),
+                ([
+                    ('screen_name', '!=', False),
+                    ('twitter_error', '=', False),
+                    ('last_status_date', '=', False),
+                    ('discovered_by', '=', a.user_id.screen_name)], 'create_date DESC', 'no status users'),
             ]
             remaining = profiles_limit
             for domain, order, t in cases:

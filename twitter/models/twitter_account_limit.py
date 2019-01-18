@@ -7,6 +7,7 @@ from odoo import api, fields, models
 class TwitterAccountLimit(models.Model):
     _description = 'Twitter account limit'
     _name = 'twitter.account.limit'
+    _order = 'name ASC'
     _rec_name = 'name'
 
     account_id = fields.Many2one(

@@ -131,7 +131,8 @@ class TwitterFriendship(models.Model):
             raise Exception("Account not found for [%s] @%s", follower.id_str, follower.screen_name)
         user = user.search_from_user_id(friend.id_str)
         if not user:
-            user = user.create_fake_user_id(friend.id_str, discovered_by=account.user_id.screen_name)
+            user = user.search_or_create_fake_user_id(
+                friend.id_str, discovered_by=account.user_id.screen_name)
         f = self.create({
             'account_id': account.id,
             'friend_id': user.id,

@@ -2,185 +2,125 @@
 <!-- Copyright 2019 Antonio Espinosa <antespi@gmail.com> -->
 <odoo>
 
-    <record id="twitter_account_view_form" model="ir.ui.view">
-        <field name="name">Twitter account form</field>
-        <field name="model">twitter.account</field>
-        <field name="arch" type="xml">
-            <form string="Twitter account">
-                <header>
-                    <button name="oauth_link"
-                        string="Link to user"
-                        type="object"
-                        attrs="{'invisible': [('user_id', '!=', False)]}"/>
-                    <button name="oauth_unlink"
-                        string="Unlink"
-                        type="object"
-                        attrs="{'invisible': [('user_id', '=', False)]}"/>
-                    <button name="sync_limits"
-                        string="Sync Limits"
-                        type="object"
-                        attrs="{'invisible': [('user_id', '=', False)]}"/>
-                    <button name="sync_friendships"
-                        string="Sync Friendships"
-                        type="object"
-                        attrs="{'invisible': [('user_id', '=', False)]}"/>
-                    <button name="action_next_follow"
-                        string="Next follow"
-                        type="object"
-                        attrs="{'invisible': [('user_id', '=', False)]}"/>
-                </header>
-                <sheet>
-                    <div class="oe_button_box" name="button_box">
-                        <button name="action_view_friendships" type="object" class="oe_stat_button" icon="fa-users">
-                            <field string="Friendships" name="friendship_ids_label" widget="statinfo"/>
-                        </button>
-                    <button name="action_view_limits" type="object" class="oe_stat_button" icon="fa-bar-chart">
-                        Limits
+<record id="twitter_account_view_form" model="ir.ui.view">
+    <field name="name">Twitter account form</field>
+    <field name="model">twitter.account</field>
+    <field name="arch" type="xml">
+        <form string="Twitter account">
+            <header>
+                <button name="oauth_link"
+                    string="Link to user"
+                    type="object"
+                    attrs="{'invisible': [('user_id', '!=', False)]}"/>
+                <button name="oauth_unlink"
+                    string="Unlink"
+                    type="object"
+                    attrs="{'invisible': [('user_id', '=', False)]}"/>
+                <button name="sync_limits"
+                    string="Sync Limits"
+                    type="object"
+                    attrs="{'invisible': [('user_id', '=', False)]}"/>
+                <button name="sync_friendships"
+                    string="Sync Friendships"
+                    type="object"
+                    attrs="{'invisible': [('user_id', '=', False)]}"/>
+                <button name="action_next_follow"
+                    string="Next follow"
+                    type="object"
+                    attrs="{'invisible': [('user_id', '=', False)]}"/>
+            </header>
+            <sheet>
+                <div class="oe_button_box" name="button_box">
+                    <button name="action_view_friendships" type="object" class="oe_stat_button" icon="fa-users">
+                        <field string="Friendships" name="friendship_ids_label" widget="statinfo"/>
                     </button>
-                    </div>
+                <button name="action_view_limits" type="object" class="oe_stat_button" icon="fa-bar-chart">
+                    Limits
+                </button>
+                </div>
+                <group>
                     <group>
-                        <group>
-                            <field name="twitter_app_id"/>
-                            <field name="user_id"/>
-                            <field name="next_follow"/>
-                        </group>
-                        <group>
-                            <field name="write_date"/>
-                            <field name="last_limit_update"/>
-                            <field name="last_friendship_update"/>
-                        </group>
+                        <field name="twitter_app_id"/>
+                        <field name="user_id"/>
+                        <field name="next_follow"/>
                     </group>
-                    <group attrs="{'invisible': [('user_id', '=', False)]}">
-                        <field name="oauth_token"/>
-                        <field name="access_token"/>
-                        <field name="access_secret"/>
+                    <group>
+                        <field name="write_date"/>
+                        <field name="last_limit_update"/>
+                        <field name="last_friendship_update"/>
                     </group>
-                    <!--notebook>
-                        <page string="Limits">
-                            <group>
-                                <group string="/users/show">
-                                    <field name="users_show_limit" string="Limit"/>
-                                    <field name="users_show_remaining" string="Remaining"/>
-                                    <field name="users_show_ratio" widget="progressbar" string="Ratio"/>
-                                    <field name="users_show_reset" string="Reset"/>
-                                </group>
-                                <group string="/friendships/show">
-                                    <field name="friendships_show_limit" string="Limit"/>
-                                    <field name="friendships_show_remaining" string="Remaining"/>
-                                    <field name="friendships_show_ratio" widget="progressbar" string="Ratio"/>
-                                    <field name="friendships_show_reset" string="Reset"/>
-                                </group>
-                            </group>
-                            <group>
-                                <group string="/followers/ids">
-                                    <field name="followers_ids_limit" string="Limit"/>
-                                    <field name="followers_ids_remaining" string="Remaining"/>
-                                    <field name="followers_ids_ratio" widget="progressbar" string="Ratio"/>
-                                    <field name="followers_ids_reset" string="Reset"/>
-                                </group>
-                                <group string="/friends/ids">
-                                    <field name="friends_ids_limit" string="Limit"/>
-                                    <field name="friends_ids_remaining" string="Remaining"/>
-                                    <field name="friends_ids_ratio" widget="progressbar" string="Ratio"/>
-                                    <field name="friends_ids_reset" string="Reset"/>
-                                </group>
-                            </group>
-                            <group>
-                                <group string="/friendships/create">
-                                    <field name="friendships_create_limit" string="Limit"/>
-                                    <field name="friendships_create_remaining" string="Remaining"/>
-                                    <field name="friendships_create_ratio" widget="progressbar" string="Ratio"/>
-                                    <field name="friendships_create_reset" string="Reset"/>
-                                </group>
-                                <group string="/friendships/destroy">
-                                    <field name="friendships_destroy_limit" string="Limit"/>
-                                    <field name="friendships_destroy_remaining" string="Remaining"/>
-                                    <field name="friendships_destroy_ratio" widget="progressbar" string="Ratio"/>
-                                    <field name="friendships_destroy_reset" string="Reset"/>
-                                </group>
-                            </group>
-                        </page>
-                    </notebook-->
-                </sheet>
-            </form>
-        </field>
-    </record>
+                </group>
+                <group attrs="{'invisible': [('user_id', '=', False)]}">
+                    <field name="oauth_token"/>
+                    <field name="access_token"/>
+                    <field name="access_secret"/>
+                </group>
+            </sheet>
+        </form>
+    </field>
+</record>
 
-    <record id="twitter_account_view_tree" model="ir.ui.view">
-        <field name="name">Twitter account tree</field>
-        <field name="model">twitter.account</field>
-        <field name="arch" type="xml">
-            <tree string="Twitter accounts">
-                <field name="twitter_app_id"/>
-                <field name="user_id"/>
-            </tree>
-        </field>
-    </record>
+<record id="twitter_account_view_tree" model="ir.ui.view">
+    <field name="name">Twitter account tree</field>
+    <field name="model">twitter.account</field>
+    <field name="arch" type="xml">
+        <tree string="Twitter accounts">
+            <field name="twitter_app_id"/>
+            <field name="user_id"/>
+        </tree>
+    </field>
+</record>
 
-    <record id="twitter_account_view_filter" model="ir.ui.view">
-        <field name="name">Twitter account filter</field>
-        <field name="model">twitter.account</field>
-        <field name="arch" type="xml">
-            <search string="Twitter accounts">
-                <field name="twitter_app_id"/>
-                <field name="user_id"/>
-            </search>
-        </field>
-    </record>
+<record id="twitter_account_view_filter" model="ir.ui.view">
+    <field name="name">Twitter account filter</field>
+    <field name="model">twitter.account</field>
+    <field name="arch" type="xml">
+        <search string="Twitter accounts">
+            <field name="twitter_app_id"/>
+            <field name="user_id"/>
+        </search>
+    </field>
+</record>
 
-    <record model="ir.actions.act_window" id="twitter_account_action">
-        <field name="name">Twitter accounts</field>
-        <field name="res_model">twitter.account</field>
-        <field name="view_mode">tree,form</field>
-        <field name="search_view_id" ref="twitter.twitter_account_view_filter"/>
-    </record>
+<record model="ir.actions.act_window" id="twitter_account_action">
+    <field name="name">Twitter accounts</field>
+    <field name="res_model">twitter.account</field>
+    <field name="view_mode">tree,form</field>
+    <field name="search_view_id" ref="twitter.twitter_account_view_filter"/>
+</record>
 
-    <!--record id="twitter_account_view_tree" model="ir.actions.act_window.view">
-        <field name="sequence" eval="1"/>
-        <field name="view_mode">tree</field>
-        <field name="view_id" ref="twitter.view_twitter_account_tree"/>
-        <field name="act_window_id" ref="twitter.twitter_account_action"/>
-    </record>
+<menuitem id="twitter_account_menu" name="Twitter Accounts" parent="twitter_config_menu"
+          action="twitter.twitter_account_action" />
 
-    <record id="twitter_account_view_tree" model="ir.actions.act_window.view">
-        <field name="sequence" eval="1"/>
-        <field name="view_mode">tree</field>
-        <field name="view_id" ref="twitter.view_twitter_account_tree"/>
-        <field name="act_window_id" ref="twitter.twitter_account_action"/>
-    </record-->
+<record id="twitter_account_limit_view_tree" model="ir.ui.view">
+    <field name="name">Twitter account limits</field>
+    <field name="model">twitter.account.limit</field>
+    <field name="arch" type="xml">
+        <tree string="Twitter account limits">
+            <field name="name"/>
+            <field name="remaining"/>
+            <field name="limit"/>
+            <field name="ratio" widget="progressbar"/>
+            <field name="reset"/>
+        </tree>
+    </field>
+</record>
 
-    <menuitem id="twitter_account_menu" name="Twitter Accounts" parent="twitter_config_menu"
-              action="twitter.twitter_account_action" />
+<record id="twitter_account_limit_view_filter" model="ir.ui.view">
+    <field name="name">Twitter account limit filter</field>
+    <field name="model">twitter.account.limit</field>
+    <field name="arch" type="xml">
+        <search string="Twitter account limits">
+            <field name="name"/>
+        </search>
+    </field>
+</record>
 
-    <record id="twitter_account_limit_view_tree" model="ir.ui.view">
-        <field name="name">Twitter account limits</field>
-        <field name="model">twitter.account.limit</field>
-        <field name="arch" type="xml">
-            <tree string="Twitter account limits">
-                <field name="name"/>
-                <field name="remaining"/>
-                <field name="limit"/>
-                <field name="ratio" widget="progressbar"/>
-                <field name="reset"/>
-            </tree>
-        </field>
-    </record>
-
-    <record id="twitter_account_limit_view_filter" model="ir.ui.view">
-        <field name="name">Twitter account limit filter</field>
-        <field name="model">twitter.account.limit</field>
-        <field name="arch" type="xml">
-            <search string="Twitter account limits">
-                <field name="name"/>
-            </search>
-        </field>
-    </record>
-
-    <record model="ir.actions.act_window" id="twitter_account_limits_action">
-        <field name="name">Twitter account limits</field>
-        <field name="res_model">twitter.account.limit</field>
-        <field name="view_mode">tree</field>
-        <field name="search_view_id" ref="twitter.twitter_account_limit_view_filter"/>
-    </record>
+<record model="ir.actions.act_window" id="twitter_account_limits_action">
+    <field name="name">Twitter account limits</field>
+    <field name="res_model">twitter.account.limit</field>
+    <field name="view_mode">tree</field>
+    <field name="search_view_id" ref="twitter.twitter_account_limit_view_filter"/>
+</record>
 
 </odoo>

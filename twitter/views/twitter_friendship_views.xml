@@ -2,166 +2,166 @@
 <!-- Copyright 2019 Antonio Espinosa <antespi@gmail.com> -->
 <odoo>
 
-    <record id="twitter_friendship_view_form" model="ir.ui.view">
-        <field name="name">Twitter friendship form</field>
-        <field name="model">twitter.friendship</field>
-        <field name="arch" type="xml">
-            <form string="Twitter friendship">
-                <header>
-                    <button name="sync_friendship"
-                        string="Sync friendship"
-                        type="object"/>
-                </header>
-                <sheet>
+<record id="twitter_friendship_view_form" model="ir.ui.view">
+    <field name="name">Twitter friendship form</field>
+    <field name="model">twitter.friendship</field>
+    <field name="arch" type="xml">
+        <form string="Twitter friendship">
+            <header>
+                <button name="sync_friendship"
+                    string="Sync friendship"
+                    type="object"/>
+            </header>
+            <sheet>
+                <group>
                     <group>
-                        <group>
-                            <field name="user_id"/>
-                            <field name="last_update"/>
-                        </group>
-                        <group>
-                            <field name="friend_id"/>
-                            <field name="block_unfollow"/>
-                            <field name="block_follow"/>
-                        </group>
+                        <field name="user_id"/>
+                        <field name="last_update"/>
                     </group>
                     <group>
-                        <group>
-                            <field name="following"/>
-                            <field name="following_start"/>
-                            <field name="following_end"/>
-                        </group>
-                        <group>
-                            <field name="followed_back"/>
-                            <field name="followed_back_start"/>
-                            <field name="followed_back_end"/>
-                        </group>
+                        <field name="friend_id"/>
+                        <field name="block_unfollow"/>
+                        <field name="block_follow"/>
                     </group>
-                    <group attrs="{'invisible': [('friend_screen_name', '=', False)]}">
-                        <field name="friend_description"/>
-                    </group>
-                    <group attrs="{'invisible': [('friend_screen_name', '=', False)]}">
-                        <group>
-                            <field name="friend_name"/>
-                            <field name="friend_screen_name"/>
-                            <field name="friend_followers_category"/>
-                            <field name="friend_lang"/>
-                            <field name="friend_location"/>
-                        </group>
-                        <group>
-                            <field name="friend_url" widget="url"/>
-                            <field name="friend_statuses_count"/>
-                            <field name="friend_friends_count"/>
-                            <field name="friend_followers_count"/>
-                            <field name="friend_followers_ratio"/>
-                        </group>
-                    </group>
-                </sheet>
-            </form>
-        </field>
-    </record>
-
-    <record id="twitter_friendship_view_tree" model="ir.ui.view">
-        <field name="name">Twitter friendship tree</field>
-        <field name="model">twitter.friendship</field>
-        <field name="arch" type="xml">
-            <tree string="Twitter friendships">
-                <field name="user_id"/>
-                <field name="friend_id"/>
-                <field name="following"/>
-                <field name="followed_back"/>
-                <field name="friend_followers_category"/>
-                <field name="friend_followers_ratio"/>
-                <field name="friend_friends_count"/>
-                <field name="friend_followers_count"/>
-                <field name="friend_location"/>
-                <field name="friend_lang"/>
-                <field name="last_update"/>
-                <field name="block_unfollow"/>
-                <field name="block_follow"/>
-            </tree>
-        </field>
-    </record>
-
-    <record id="twitter_friendship_view_filter" model="ir.ui.view">
-        <field name="name">Twitter friendship filter</field>
-        <field name="model">twitter.friendship</field>
-        <field name="arch" type="xml">
-            <search string="Twitter friendships">
-                <field name="display_name" string="Frienship name"
-                       filter_domain="[('display_name', 'ilike', self)]"/>
-                <field name="friend_name" string="Friend name"
-                       filter_domain="['|', '|',
-                            ('friend_name', 'ilike', self),
-                            ('friend_screen_name', 'ilike', self),
-                            ('friend_description', 'ilike', self)]"/>
-                <field name="user_id" filter_domain="[('user_id.display_name', 'ilike', self)]"/>
-                <field name="friend_id" filter_domain="[('friend_id.display_name', 'ilike', self)]"/>
-                <field name="friend_location" string="Friend location"/>
-                <field name="friend_lang" string="Friend language"/>
-                <filter name="pending_friendship" string="Pending friendships"
-                        domain="[('last_update', '=', False)]"/>
-                <filter name="updated_friendship" string="Updated friendships"
-                        domain="[('last_update', '!=', False)]"/>
-                <separator/>
-                <filter name="following" string="Following"
-                        domain="[('following', '=', True)]"/>
-                <filter name="not_following" string="Not following"
-                        domain="[('following', '=', False)]"/>
-                <separator/>
-                <filter name="followed_back" string="Followed back"
-                        domain="[('followed_back', '=', True)]"/>
-                <filter name="not_followed_back" string="Not followed back"
-                        domain="[('followed_back', '=', False)]"/>
-                <group expand="0" name="group_by" string="Group By">
-                    <filter name="group_account" string="User" domain="[]"
-                            context="{'group_by' : 'user_id'}" />
-                    <filter name="group_friend" string="Friend" domain="[]"
-                            context="{'group_by': 'friend_id'}"/>
-                    <filter name="group_friend_followers_category" string="Friend category" domain="[]"
-                            context="{'group_by' : 'friend_followers_category'}" />
-                    <filter name="group_friend_location" string="Friend location" domain="[]"
-                            context="{'group_by' : 'friend_location'}" />
-                    <filter name="group_friend_lang" string="Friend language"
-                            context="{'group_by': 'friend_lang'}"/>
-                    <filter name="group_following" string="Following" domain="[]"
-                            context="{'group_by' : 'following'}" />
-                    <filter name="group_followed_back" string="Followed back" domain="[]"
-                            context="{'group_by' : 'followed_back'}" />
                 </group>
-            </search>
-        </field>
-    </record>
+                <group>
+                    <group>
+                        <field name="following"/>
+                        <field name="following_start"/>
+                        <field name="following_end"/>
+                    </group>
+                    <group>
+                        <field name="followed_back"/>
+                        <field name="followed_back_start"/>
+                        <field name="followed_back_end"/>
+                    </group>
+                </group>
+                <group attrs="{'invisible': [('friend_screen_name', '=', False)]}">
+                    <field name="friend_description"/>
+                </group>
+                <group attrs="{'invisible': [('friend_screen_name', '=', False)]}">
+                    <group>
+                        <field name="friend_name"/>
+                        <field name="friend_screen_name"/>
+                        <field name="friend_followers_category"/>
+                        <field name="friend_lang"/>
+                        <field name="friend_location"/>
+                    </group>
+                    <group>
+                        <field name="friend_url" widget="url"/>
+                        <field name="friend_statuses_count"/>
+                        <field name="friend_friends_count"/>
+                        <field name="friend_followers_count"/>
+                        <field name="friend_followers_ratio"/>
+                    </group>
+                </group>
+            </sheet>
+        </form>
+    </field>
+</record>
 
-    <record id="twitter_friendship_action" model="ir.actions.act_window">
-        <field name="name">Twitter friendships</field>
-        <field name="res_model">twitter.friendship</field>
-        <field name="view_mode">tree,form</field>
-        <field name="search_view_id" ref="twitter.twitter_friendship_view_filter"/>
-        <field name="view_id" ref="twitter.twitter_friendship_view_tree"/>
-    </record>
+<record id="twitter_friendship_view_tree" model="ir.ui.view">
+    <field name="name">Twitter friendship tree</field>
+    <field name="model">twitter.friendship</field>
+    <field name="arch" type="xml">
+        <tree string="Twitter friendships">
+            <field name="user_id"/>
+            <field name="friend_id"/>
+            <field name="following"/>
+            <field name="followed_back"/>
+            <field name="friend_followers_category"/>
+            <field name="friend_followers_ratio"/>
+            <field name="friend_friends_count"/>
+            <field name="friend_followers_count"/>
+            <field name="friend_location"/>
+            <field name="friend_lang"/>
+            <field name="last_update"/>
+            <field name="block_unfollow"/>
+            <field name="block_follow"/>
+        </tree>
+    </field>
+</record>
 
-    <menuitem id="twitter_friendships_menu" name="Friendship" parent="twitter_users_menu"
-              action="twitter.twitter_friendship_action" sequence="20"/>
+<record id="twitter_friendship_view_filter" model="ir.ui.view">
+    <field name="name">Twitter friendship filter</field>
+    <field name="model">twitter.friendship</field>
+    <field name="arch" type="xml">
+        <search string="Twitter friendships">
+            <field name="display_name" string="Frienship name"
+                   filter_domain="[('display_name', 'ilike', self)]"/>
+            <field name="friend_name" string="Friend name"
+                   filter_domain="['|', '|',
+                        ('friend_name', 'ilike', self),
+                        ('friend_screen_name', 'ilike', self),
+                        ('friend_description', 'ilike', self)]"/>
+            <field name="user_id" filter_domain="[('user_id.display_name', 'ilike', self)]"/>
+            <field name="friend_id" filter_domain="[('friend_id.display_name', 'ilike', self)]"/>
+            <field name="friend_location" string="Friend location"/>
+            <field name="friend_lang" string="Friend language"/>
+            <filter name="pending_friendship" string="Pending friendships"
+                    domain="[('last_update', '=', False)]"/>
+            <filter name="updated_friendship" string="Updated friendships"
+                    domain="[('last_update', '!=', False)]"/>
+            <separator/>
+            <filter name="following" string="Following"
+                    domain="[('following', '=', True)]"/>
+            <filter name="not_following" string="Not following"
+                    domain="[('following', '=', False)]"/>
+            <separator/>
+            <filter name="followed_back" string="Followed back"
+                    domain="[('followed_back', '=', True)]"/>
+            <filter name="not_followed_back" string="Not followed back"
+                    domain="[('followed_back', '=', False)]"/>
+            <group expand="0" name="group_by" string="Group By">
+                <filter name="group_account" string="User" domain="[]"
+                        context="{'group_by' : 'user_id'}" />
+                <filter name="group_friend" string="Friend" domain="[]"
+                        context="{'group_by': 'friend_id'}"/>
+                <filter name="group_friend_followers_category" string="Friend category" domain="[]"
+                        context="{'group_by' : 'friend_followers_category'}" />
+                <filter name="group_friend_location" string="Friend location" domain="[]"
+                        context="{'group_by' : 'friend_location'}" />
+                <filter name="group_friend_lang" string="Friend language"
+                        context="{'group_by': 'friend_lang'}"/>
+                <filter name="group_following" string="Following" domain="[]"
+                        context="{'group_by' : 'following'}" />
+                <filter name="group_followed_back" string="Followed back" domain="[]"
+                        context="{'group_by' : 'followed_back'}" />
+            </group>
+        </search>
+    </field>
+</record>
 
-    <record id="twitter_account_friendships_view_tree" model="ir.ui.view">
-        <field name="name">Twitter friendships</field>
-        <field name="model">twitter.friendship</field>
-        <field name="arch" type="xml">
-            <tree string="Twitter friendships">
-                <field name="friend_id"/>
-                <field name="following"/>
-                <field name="followed_back"/>
-                <field name="friend_followers_category"/>
-                <field name="friend_followers_ratio"/>
-                <field name="friend_friends_count"/>
-                <field name="friend_followers_count"/>
-                <field name="friend_location"/>
-                <field name="friend_lang"/>
-                <field name="last_update"/>
-                <field name="block_unfollow"/>
-                <field name="block_follow"/>
-            </tree>
-        </field>
-    </record>
+<record id="twitter_friendship_action" model="ir.actions.act_window">
+    <field name="name">Twitter friendships</field>
+    <field name="res_model">twitter.friendship</field>
+    <field name="view_mode">tree,form</field>
+    <field name="search_view_id" ref="twitter.twitter_friendship_view_filter"/>
+    <field name="view_id" ref="twitter.twitter_friendship_view_tree"/>
+</record>
+
+<menuitem id="twitter_friendships_menu" name="Friendship" parent="twitter_users_menu"
+          action="twitter.twitter_friendship_action" sequence="20"/>
+
+<record id="twitter_account_friendships_view_tree" model="ir.ui.view">
+    <field name="name">Twitter friendships</field>
+    <field name="model">twitter.friendship</field>
+    <field name="arch" type="xml">
+        <tree string="Twitter friendships">
+            <field name="friend_id"/>
+            <field name="following"/>
+            <field name="followed_back"/>
+            <field name="friend_followers_category"/>
+            <field name="friend_followers_ratio"/>
+            <field name="friend_friends_count"/>
+            <field name="friend_followers_count"/>
+            <field name="friend_location"/>
+            <field name="friend_lang"/>
+            <field name="last_update"/>
+            <field name="block_unfollow"/>
+            <field name="block_follow"/>
+        </tree>
+    </field>
+</record>
 
 </odoo>

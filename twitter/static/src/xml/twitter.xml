@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+
+<!-- TODO: Show this only if several active accounts -->
+<t t-name="Twitter.AccountSelector">
+    <li class="o_tt_account_selector" role="menuitem">
+        <a href="#" title="Open Twitter Account Selector" aria-label="Open Twitter Account Selector"
+           data-toggle="dropdown" aria-expanded="false" tabindex="-1" data-display="static">
+            <span class="fa fa-twitter"/>
+            <!-- TODO: Show the avatar of the user and account selected -->
+        </a>
+        <div class="dropdown-menu dropdown-menu-right o_debug_dropdown" role="menu"/>
+        <!-- TODO: Show all the active accounts. User select the account that wants to select -->
+    </li>
+</t>
+
+</templates>

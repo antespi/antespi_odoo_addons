@@ -2,50 +2,51 @@
 <!-- Copyright 2019 Antonio Espinosa <antespi@gmail.com> -->
 <odoo>
 
-    <record id="twitter_app_view_form" model="ir.ui.view">
-        <field name="name">Twitter app form</field>
-        <field name="model">twitter.app</field>
-        <field name="arch" type="xml">
-            <form string="Twitter app">
-                <sheet>
-                    <group>
-                        <field name="name"/>
-                        <field name="consumer_token"/>
-                        <field name="consumer_secret"/>
-                    </group>
-                </sheet>
-            </form>
-        </field>
-    </record>
+<record id="twitter_app_view_form" model="ir.ui.view">
+    <field name="name">Twitter app form</field>
+    <field name="model">twitter.app</field>
+    <field name="arch" type="xml">
+        <form string="Twitter app">
+            <sheet>
+                <group>
+                    <field name="name"/>
+                    <field name="consumer_token"/>
+                    <field name="consumer_secret"/>
+                </group>
+            </sheet>
+        </form>
+    </field>
+</record>
 
-    <record id="twitter_app_view_tree" model="ir.ui.view">
-        <field name="name">Twitter app tree</field>
-        <field name="model">twitter.app</field>
-        <field name="arch" type="xml">
-            <tree string="Twitter apps">
-                <field name="name"/>
-                <field name="consumer_token"/>
-            </tree>
-        </field>
-    </record>
+<record id="twitter_app_view_tree" model="ir.ui.view">
+    <field name="name">Twitter app tree</field>
+    <field name="model">twitter.app</field>
+    <field name="arch" type="xml">
+        <tree string="Twitter apps">
+            <field name="name"/>
+            <field name="consumer_token"/>
+        </tree>
+    </field>
+</record>
 
-    <record id="twitter_app_view_filter" model="ir.ui.view">
-        <field name="name">Twitter app filter</field>
-        <field name="model">twitter.app</field>
-        <field name="arch" type="xml">
-            <search string="Twitter apps">
-                <field name="name"/>
-            </search>
-        </field>
-    </record>
+<record id="twitter_app_view_filter" model="ir.ui.view">
+    <field name="name">Twitter app filter</field>
+    <field name="model">twitter.app</field>
+    <field name="arch" type="xml">
+        <search string="Twitter apps">
+            <field name="name"/>
+        </search>
+    </field>
+</record>
 
-    <record id="twitter_app_action" model="ir.actions.act_window">
-        <field name="name">Twitter apps</field>
-        <field name="res_model">twitter.app</field>
-        <field name="view_mode">tree,form</field>
-        <field name="search_view_id" ref="twitter.twitter_app_view_filter"/>
-    </record>
+<record id="twitter_app_action" model="ir.actions.act_window">
+    <field name="name">Twitter apps</field>
+    <field name="res_model">twitter.app</field>
+    <field name="view_mode">tree,form</field>
+    <field name="search_view_id" ref="twitter.twitter_app_view_filter"/>
+</record>
 
-    <menuitem id="twitter_app_menu" name="Twitter Apps" parent="twitter_config_menu"
-              action="twitter.twitter_app_action" />
+<menuitem id="twitter_app_menu" name="Twitter Apps" parent="twitter_config_menu"
+          action="twitter.twitter_app_action" />
+
 </odoo>

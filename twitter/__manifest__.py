@@ -20,6 +20,8 @@
         'views/twitter_limit_views.xml',
         'views/twitter_user_views.xml',
         'views/twitter_friendship_views.xml',
+        'views/twitter_status_views.xml',
+        'views/res_users_views.xml',
 
         'data/ir_cron.xml',
         'data/ir_config_parameter.xml',

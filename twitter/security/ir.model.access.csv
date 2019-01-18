@@ -3,5 +3,6 @@ access_twitter_account,twitter.account,model_twitter_account,twitter.group_twitt
 access_twitter_app,twitter.app,model_twitter_app,twitter.group_twitter,1,1,1,1
 access_twitter_user,twitter.user,model_twitter_user,twitter.group_twitter,1,1,1,1
 access_twitter_friendship,twitter.friendship,model_twitter_friendship,twitter.group_twitter,1,1,1,1
+access_twitter_status,twitter.status,model_twitter_status,twitter.group_twitter,1,1,1,1
 access_twitter_limit,twitter.limit,model_twitter_limit,twitter.group_twitter,1,1,1,1
 access_twitter_account_limit,twitter.account.limit,model_twitter_account_limit,twitter.group_twitter,1,1,1,1

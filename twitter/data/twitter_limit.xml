@@ -32,6 +32,30 @@
         <field name="limit">900</field>
         <field name="minutes">15</field>
     </record>
+    <record model="twitter.limit" id="limit_users_lookup">
+        <field name="name">users_lookup</field>
+        <field name="resource">users</field>
+        <field name="endpoint">/users/lookup</field>
+        <field name="manual" eval="False"/>
+        <field name="limit">900</field>
+        <field name="minutes">15</field>
+    </record>
+    <record model="twitter.limit" id="limit_statuses_show">
+        <field name="name">statuses_show</field>
+        <field name="resource">statuses</field>
+        <field name="endpoint">/statuses/show/:id</field>
+        <field name="manual" eval="False"/>
+        <field name="limit">900</field>
+        <field name="minutes">15</field>
+    </record>
+    <record model="twitter.limit" id="limit_statuses_lookup">
+        <field name="name">statuses_lookup</field>
+        <field name="resource">statuses</field>
+        <field name="endpoint">/statuses/lookup</field>
+        <field name="manual" eval="False"/>
+        <field name="limit">900</field>
+        <field name="minutes">15</field>
+    </record>
     <record model="twitter.limit" id="limit_friendships_create">
         <field name="name">friendships_create</field>
         <field name="resource">friendships</field>
